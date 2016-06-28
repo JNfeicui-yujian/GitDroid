@@ -35,5 +35,6 @@ dependencies {
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.16'
     // pager title
     compile 'me.relex:circleindicator:1.2.1@aar'
-
+    // ButterKnife
+    compile 'com.jakewharton:butterknife:7.0.1'
 }
