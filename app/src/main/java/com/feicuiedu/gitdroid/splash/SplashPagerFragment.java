@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import com.feicuiedu.gitdroid.R;
 import com.feicuiedu.gitdroid.splash.pager.Pager2;
@@ -34,6 +35,10 @@ public class SplashPagerFragment extends Fragment {
     @BindColor(R.color.colorRed) int colorRed;  // ViewPager页面对应背景色
     @BindColor(R.color.colorYellow) int colorYellow;    // ViewPager页面对应背景色
 
+    @Bind(R.id.layoutPhone) FrameLayout layoutPhone; // 手机Layout
+    @Bind(R.id.ivPhoneBlank) ImageView ivPhoneBlank;
+    @Bind(R.id.ivPhoneFont) ImageView ivPhoneFont;
+
     @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_splash_pager, container, false);
         return view;
@@ -44,13 +49,43 @@ public class SplashPagerFragment extends Fragment {
         ButterKnife.bind(this, view);
         adapter = new SplashPagerAdapter(getContext());
         viewPager.setAdapter(adapter);
-        // 添加ViewPager监听
-        viewPager.addOnPageChangeListener(pageChangeListener);
+        viewPager.addOnPageChangeListener(pageColorChangeListener);
+        viewPager.addOnPageChangeListener(phoneChangeListener);
         indicator.setViewPager(viewPager);
     }
 
+    // 此监听器主要负责viewpager在scroll过程中,当前布局上layoutPhone布局的平移、缩放、渐变的处理
+    private final ViewPager.OnPageChangeListener phoneChangeListener = new ViewPager.OnPageChangeListener() {
+        @Override public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            // ViewPager在第一个页面和第二个页面之间
+            if (position == 0) {
+                // 在移动过程中，实时scale
+                float scale = 0.3f + positionOffset * 0.7f;
+                layoutPhone.setScaleX(scale);
+                layoutPhone.setScaleY(scale);
+                // 在移动过程中，fone实时的变化
+                ivPhoneFont.setAlpha(positionOffset);
+                // 在移动过程中，有一个平移的动画
+                int scroll = (int) ((positionOffset - 1) * 400);
+                layoutPhone.setTranslationX(scroll);
+                return;
+            }
+            // 当ViewPager在第二个页面和第三个页面之间时(总是为1),手机要和ViewPager一起平移
+            if (position == 1) {
+                layoutPhone.setTranslationX(-positionOffsetPixels);
+                return;
+            }
+        }
+
+        @Override public void onPageSelected(int position) {
+        }
+
+        @Override public void onPageScrollStateChanged(int state) {
+        }
+    };
+
     // 此监听器主要负责背景颜色的渐变，和最后一个页面视图动画的显示。
-    private final ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
+    private final ViewPager.OnPageChangeListener pageColorChangeListener = new ViewPager.OnPageChangeListener() {
         // ARGB插值器
         final ArgbEvaluator evaluator = new ArgbEvaluator();
 
@@ -72,7 +107,7 @@ public class SplashPagerFragment extends Fragment {
 
         @Override public void onPageSelected(int position) {
             // 显示最后一个页面的视图动画。
-            if(position == 2){
+            if (position == 2) {
                 Pager2 pager2 = (Pager2) adapter.getView(2);
                 pager2.showAnimation();
             }
@@ -81,4 +116,9 @@ public class SplashPagerFragment extends Fragment {
         @Override public void onPageScrollStateChanged(int state) {
         }
     };
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+    }
 }
