@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.feicuiedu.gitdroid.R;
+import com.feicuiedu.gitdroid.splash.pager.Pager2;
 
 import butterknife.Bind;
 import butterknife.BindColor;
@@ -70,6 +71,11 @@ public class SplashPagerFragment extends Fragment {
         }
 
         @Override public void onPageSelected(int position) {
+            // 显示最后一个页面的视图动画。
+            if(position == 2){
+                Pager2 pager2 = (Pager2) adapter.getView(2);
+                pager2.showAnimation();
+            }
         }
 
         @Override public void onPageScrollStateChanged(int state) {
